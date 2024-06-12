@@ -1,3 +1,7 @@
+networks:
+  hotel-reservation-app-network:
+    external: true
+
 services:
 
   postgres:
@@ -10,6 +14,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
+    networks:
+      - hotel-reservation-app-network
     volumes:
         - postgres-data:/var/lib/postgresql/data
 
@@ -17,13 +23,15 @@ services:
     image: dpage/pgadmin4
     ports:
       - "8888:80"
+    networks:
+      - hotel-reservation-app-network
     environment:
       PGADMIN_DEFAULT_EMAIL: pgadmin@gmail.com
       PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
-  nestjs:
+  user-service:
     build:
       context: .
       dockerfile: Dockerfile
@@ -34,13 +42,15 @@ services:
       - /usr/src/app/node_modules
     ports:
       - "1313:1313"
+    networks:
+      - hotel-reservation-app-network
     depends_on:
       - postgres
     env_file:
       - .env
     # Run a command against the development stage of the image
     command: npm run start:dev
-    
+  
 volumes:
   postgres-data:
   pgadmin-data:
