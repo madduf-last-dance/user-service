@@ -6,3 +6,5 @@ test
 .prettierrc
 Dockerfile
 README.md
+*.yaml
+
