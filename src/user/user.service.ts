@@ -11,6 +11,8 @@ export class UserService {
   constructor(
     @Inject("RESERVATION_SERVICE") private readonly reservationClient:
       ClientProxy,
+    @Inject("ACCOMMODATION_SERVICE") private readonly accommodationClient:
+      ClientProxy,
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
   async create(dto: CreateUserDto) {
@@ -27,8 +29,13 @@ export class UserService {
     );
   }
 
+  async findOneId(id: number): Promise<User | undefined> {
+    return this.usersRepository.findOne(
+      { where: { id } },
+    );
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
     let user = await this.usersRepository.findOne({ where: { id: id } });
     if (!user) {
       throw new RpcException("User not found");
@@ -46,7 +53,7 @@ export class UserService {
     // return this.usersRepository.save(updatedUser);
   }
 
-  remove(id: number) {
+  removeGuest(id: number) {
     if (this.reservationClient.send<boolean>("hasActiveReservations", id)) {
       throw new RpcException(
         "User cannot be deleted because he has active reservations in future",
@@ -54,4 +61,15 @@ export class UserService {
     }
     return this.usersRepository.delete(id);
   }
+
+  removeHost(id: number) {
+    if (this.reservationClient.send<boolean>("hasFutureReservations", id)) {
+      throw new RpcException(
+        "User cannot be deleted because he has future reservations for his accommodations",
+      );
+    }
+    this.accommodationClient.send<any>("deleteHostAccommodations", id);
+    return this.usersRepository.delete(id);
+  }
+
 }

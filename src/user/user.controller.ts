@@ -1,8 +1,9 @@
-import { Controller } from "@nestjs/common";
+import { Controller, NotFoundException } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { Role } from "./entities/role.enum";
 
 @Controller()
 export class UserController {
@@ -34,7 +35,12 @@ export class UserController {
   }
 
   @MessagePattern("removeUser")
-  remove(@Payload() id: number) {
-    return this.userService.remove(id);
+  async remove(@Payload() id: number) {
+    const user = await this.userService.findOneId(id);
+    if (user.role === Role.GUEST) {
+      this.userService.removeGuest(user.id);
+    } else if (user.role === Role.HOST) {
+      this.userService.removeHost(user.id);
+    }
   }
 }
