@@ -4,6 +4,7 @@ import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { Role } from "./entities/role.enum";
+import { UpdateCredentialsDto } from "./dto/update-credentials.dto";
 
 @Controller()
 export class UserController {
@@ -32,6 +33,11 @@ export class UserController {
   @MessagePattern("updateUser")
   update(@Payload() updateUserDto: UpdateUserDto) {
     return this.userService.update(updateUserDto.id, updateUserDto);
+  }
+
+  @MessagePattern("updateCredentials")
+  updateCredentials(@Payload() updateUserDto: UpdateCredentialsDto) {
+    return this.userService.updateCredentials(updateUserDto);
   }
 
   @MessagePattern("removeUser")

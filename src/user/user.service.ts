@@ -5,6 +5,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
+import { RpcException } from "@nestjs/microservices";
+import * as bcrypt from "bcrypt";
+import { UpdateCredentialsDto } from "./dto/update-credentials.dto";
 
 @Injectable()
 export class UserService {
@@ -49,8 +52,26 @@ export class UserService {
       }
     }
     let updatedUser = Object.assign(user, updateUserDto);
-    return "";
+    console.log(updatedUser);
     // return this.usersRepository.save(updatedUser);
+  }
+  async updateCredentials(updateUserDto: UpdateCredentialsDto) {
+    let user = await this.usersRepository.findOne({ where: { id: updateUserDto.id } });
+    if (!user) {
+      throw new RpcException("User not found");
+    }
+    if (user.username !== updateUserDto.username) {
+      user = await this.usersRepository.findOne({
+        where: { username: updateUserDto.username },
+      });
+      if (user) {
+        throw new RpcException("User with this username already exists");
+      }
+    }
+    user.username = updateUserDto.username;
+    user.password = await bcrypt.hash(updateUserDto.password, 10);
+    console.log(user);
+    return this.usersRepository.save(user);
   }
 
   removeGuest(id: number) {
