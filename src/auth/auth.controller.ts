@@ -25,11 +25,6 @@ export class AuthController {
     registerDto.role = Role.GUEST;
     return this.authService.register(registerDto);
   }
-  @MessagePattern("remove")
-  remove(@Payload() id: number) {
-    return this.authService.remove(id);
-  }
-
   //
   // @MessagePattern("createAuth")
   // create(@Payload() createAuthDto: CreateAuthDto) {

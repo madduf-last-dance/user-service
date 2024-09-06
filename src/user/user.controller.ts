@@ -5,6 +5,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { Role } from "./entities/role.enum";
 import { UpdateCredentialsDto } from "./dto/update-credentials.dto";
+import { NotFoundError } from "rxjs";
 
 @Controller()
 export class UserController {
@@ -48,5 +49,13 @@ export class UserController {
     } else if (user.role === Role.HOST) {
       this.userService.removeHost(user.id);
     }
+  }
+  @MessagePattern("profile")
+  async profile(@Payload() id: any) {
+    const user = await this.userService.findOneId(id);
+    if(!user) {
+      throw new NotFoundError("User not found");
+    }
+    return user;
   }
 }

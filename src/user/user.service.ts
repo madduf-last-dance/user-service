@@ -5,7 +5,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
-import { RpcException } from "@nestjs/microservices";
 import * as bcrypt from "bcrypt";
 import { UpdateCredentialsDto } from "./dto/update-credentials.dto";
 
@@ -52,8 +51,7 @@ export class UserService {
       }
     }
     let updatedUser = Object.assign(user, updateUserDto);
-    console.log(updatedUser);
-    // return this.usersRepository.save(updatedUser);
+    return this.usersRepository.save(updatedUser);
   }
   async updateCredentials(updateUserDto: UpdateCredentialsDto) {
     let user = await this.usersRepository.findOne({ where: { id: updateUserDto.id } });

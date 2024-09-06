@@ -23,7 +23,7 @@ export class AuthService {
         new UnauthorizedException("Invalid username or password"),
       );
     }
-    const payload = { sub: user.id, username: user.username };
+    const payload = { sub: user.id, username: user.username, role:user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
@@ -44,12 +44,5 @@ export class AuthService {
   }
   async update(dto: any) {
     return this.userService.update(dto.id, dto);
-  }
-  async remove(id: number): Promise<string> {
-    if (this.reservationClient.send<boolean>("hasActiveReservation", id)) {
-      await this.userService.remove(id);
-      return "User account delete";
-    }
-    return "You have active reservations";
   }
 }

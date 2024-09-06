@@ -15,6 +15,14 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
           port: 1315,
         },
       },
+      {
+        name: "ACCOMMODATION_SERVICE",
+        transport: Transport.TCP,
+        options: {
+          host: "accommodation-service",
+          port: 1312,
+        },
+      },
     ]),
     TypeOrmModule.forFeature([User]),
   ],
