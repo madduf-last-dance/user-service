@@ -1,0 +1,39 @@
+nameOverride: user-service
+
+deployment:
+  image:
+    repository: nikola7/user-service
+    tag: "0.1"
+  replicaCount: 1
+  containerPort: 1313
+
+service:
+  type: ClusterIP
+  port: 1313
+  targetPort: 1313
+  # nodePort: 30001
+  protocol: TCP
+
+ingress:
+  enabled: false
+  className: nginx  
+  paths:
+      path: /user1234
+      backend:
+        service:
+          name: user-service
+          port:
+            number: 1313
+# ConfigMap (=environment variables)
+configmap:
+  data:
+    DB_ENDPOINT: postgresql.postgresql
+    DB_PORT: "5432"
+    DB_NAME: user_db
+    DB_HOST: postgresql.postgresql
+
+# Secret (=sensitive environment variables)
+secret:
+  data:
+    DB_USERNAME: postgres # override with helm cli
+    DB_PASSWORD: lLwgLrKJmg # override with helm cli
