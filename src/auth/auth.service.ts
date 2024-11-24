@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { HttpStatus, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
@@ -18,12 +18,14 @@ export class AuthService {
     pass: string,
   ): Promise<{ access_token: string }> {
     const user = await this.userService.findOne(username);
-    if (!await bcrypt.compare(pass, user.password)) {
-      throw new RpcException(
-        new UnauthorizedException("Invalid username or password"),
-      );
+    if(!user) {
+      throw new RpcException({code: 401, message: "Invalid username or password"});
     }
-    const payload = { sub: user.id, username: user.username, role:user.role };
+    if (!await bcrypt.compare(pass, user.password)) {
+      throw new RpcException({code: 401, message: "Invalid username or password"});
+    }
+    console.log(user);
+    const payload = { sub: user.id, username: user.username, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
@@ -33,7 +35,7 @@ export class AuthService {
   ) {
     let user = await this.userService.findOne(dto.username);
     if (user) {
-      throw new RpcException("user already exists");
+      throw new RpcException({code: 409, message: "Username already used"});
     }
     dto = {
       ...dto,

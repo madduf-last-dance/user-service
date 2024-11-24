@@ -40,14 +40,14 @@ export class UserService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     let user = await this.usersRepository.findOne({ where: { id: id } });
     if (!user) {
-      throw new RpcException("User not found");
+      throw new RpcException({code: 404, message: "User not found"});
     }
     if (user.username !== updateUserDto.username) {
       user = await this.usersRepository.findOne({
         where: { username: updateUserDto.username },
       });
       if (user) {
-        throw new RpcException("User with this username already exists");
+        throw new RpcException({code: 409, message: "Username already used"});
       }
     }
     let updatedUser = Object.assign(user, updateUserDto);
@@ -63,29 +63,24 @@ export class UserService {
         where: { username: updateUserDto.username },
       });
       if (user) {
-        throw new RpcException("User with this username already exists");
+        throw new RpcException({code: 409, message: "Username already used"});
       }
     }
     user.username = updateUserDto.username;
     user.password = await bcrypt.hash(updateUserDto.password, 10);
-    console.log(user);
     return this.usersRepository.save(user);
   }
 
   removeGuest(id: number) {
     if (this.reservationClient.send<boolean>("hasActiveReservations", id)) {
-      throw new RpcException(
-        "User cannot be deleted because he has active reservations in future",
-      );
+      throw new RpcException({code: 400, message: "User cannot be deleted because he has future reservations for his accommodations"});
     }
     return this.usersRepository.delete(id);
   }
 
   removeHost(id: number) {
     if (this.reservationClient.send<boolean>("hasFutureReservations", id)) {
-      throw new RpcException(
-        "User cannot be deleted because he has future reservations for his accommodations",
-      );
+      throw new RpcException({code: 400, message: "User cannot be deleted because he has active reservations in future"});
     }
     this.accommodationClient.send<any>("deleteHostAccommodations", id);
     return this.usersRepository.delete(id);

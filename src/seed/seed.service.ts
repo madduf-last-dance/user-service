@@ -36,6 +36,25 @@ export class SeedService {
         address: "Pemina kuca",
         role: Role.GUEST,
       },
+      {
+        username: "host",
+        password: await bcrypt.hash("host", 10),
+        name: "Coa",
+        surname: "Jovanovic",
+        email: "aca.faca+2@vranje.com",
+        address: "Pemina kuca",
+        role: Role.HOST,
+      },
+      {
+        username: "guest",
+        password: await bcrypt.hash("guest", 10),
+        name: "Coa",
+        surname: "Jovanovic",
+        email: "aca.faca+1@vranje.com",
+        address: "Pemina kuca",
+        role: Role.GUEST,
+      },
+
     ];
     await this.userRepository.save(users);
   }
