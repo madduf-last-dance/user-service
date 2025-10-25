@@ -19,7 +19,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
         name: "RESERVATION_SERVICE",
         transport: Transport.TCP,
         options: {
-          host: 'reservation-service.default.svc.cluster.local',
+          host: 'localhost',
           port: 1315,
         },
       },
@@ -27,7 +27,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
         name: "ACCOMMODATION_SERVICE",
         transport: Transport.TCP,
         options: {
-          host: 'accommodation-service.default.svc.cluster.local',
+          host: 'localhost',
           port: 1312,
         },
       },

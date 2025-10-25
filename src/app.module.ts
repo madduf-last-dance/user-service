@@ -9,6 +9,11 @@ import { SeedModule } from "./seed/seed.module";
 
 @Module({
   imports: [
+    ConfigModule.forRoot(
+      {
+        envFilePath: ['.env']
+      }
+    ),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: process.env.DB_HOST,
