@@ -45,10 +45,14 @@ export class UserController {
   async remove(@Payload() id: number) {
     const user = await this.userService.findOneId(id);
     console.log(user)
-    if (user.role === Role.GUEST) {
-      await this.userService.removeGuest(user.id);
-    } else if (user.role === Role.HOST) {
-      await this.userService.removeHost(user.id);
+    try{
+       if (user.role === Role.GUEST) {
+        await this.userService.removeGuest(user.id);
+       } else if (user.role === Role.HOST) {
+        await this.userService.removeHost(user.id);
+    }
+    } catch (error) {
+    throw error; 
     }
   }
   @MessagePattern("profile")

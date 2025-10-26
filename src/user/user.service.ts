@@ -82,7 +82,7 @@ export class UserService {
     if (hasReservations) {
       throw new RpcException({
         code: 400,
-        message: "User cannot be deleted because he has future reservations",
+        message: "This account cannot be deleted because it has future reservations",
       });
     }
 
@@ -98,7 +98,7 @@ export class UserService {
     );
 
     if (hasReservations) {
-      throw new RpcException({ code: 400, message: "User cannot be deleted because he has future reservations for his accommodations" });
+      throw new RpcException({ code: 400, message: "This account cannot be deleted because of future reservations in your accommodations" });
     }
     await lastValueFrom(
       this.accommodationClient.send<any>("deleteHostAccommodations", id)
