@@ -46,9 +46,9 @@ export class UserController {
     const user = await this.userService.findOneId(id);
     console.log(user)
     if (user.role === Role.GUEST) {
-      this.userService.removeGuest(user.id);
+      await this.userService.removeGuest(user.id);
     } else if (user.role === Role.HOST) {
-      this.userService.removeHost(user.id);
+      await this.userService.removeHost(user.id);
     }
   }
   @MessagePattern("profile")
