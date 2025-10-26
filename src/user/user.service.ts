@@ -7,6 +7,7 @@ import { User } from "./entities/user.entity";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
 import * as bcrypt from "bcrypt";
 import { UpdateCredentialsDto } from "./dto/update-credentials.dto";
+import { catchError, defaultIfEmpty, lastValueFrom, of } from "rxjs";
 
 @Injectable()
 export class UserService {
@@ -71,18 +72,42 @@ export class UserService {
     return this.usersRepository.save(user);
   }
 
-  removeGuest(id: number) {
-    if (this.reservationClient.send<boolean>("hasActiveReservations", id)) {
-      throw new RpcException({code: 400, message: "User cannot be deleted because he has future reservations for his accommodations"});
+  async removeGuest(id: number) {
+    const hasReservations = await lastValueFrom(
+      this.reservationClient.send<boolean>("hasFutureReservationsGuest", { guestId: id }).pipe(
+        catchError(() => of(false))
+      )
+    );
+
+    if (hasReservations) {
+      throw new RpcException({
+        code: 400,
+        message: "User cannot be deleted because he has future reservations",
+      });
     }
+
     return this.usersRepository.delete(id);
   }
 
-  removeHost(id: number) {
-    if (this.reservationClient.send<boolean>("hasFutureReservations", id)) {
-      throw new RpcException({code: 400, message: "User cannot be deleted because he has active reservations in future"});
+  async removeHost(id: number) {
+  // Await the observable result
+    const hasReservations = await lastValueFrom(
+    this.reservationClient.send<boolean>("hasFutureReservationsHost", { hostId: id }).pipe(
+      catchError(() => of(false))
+    )
+    );
+
+    if (hasReservations) {
+      throw new RpcException({ code: 400, message: "User cannot be deleted because he has future reservations for his accommodations" });
     }
-    this.accommodationClient.send<any>("deleteHostAccommodations", id);
+    await lastValueFrom(
+      this.accommodationClient.send<any>("deleteHostAccommodations", id)
+       .pipe(
+      catchError(() => of(null))
+      )
+
+    );
+
     return this.usersRepository.delete(id);
   }
 
